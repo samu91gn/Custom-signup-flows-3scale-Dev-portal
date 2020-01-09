@@ -1,0 +1,101 @@
+<script>
+function addparams(){
+	for(var i = 0; i < document.forms.length; i++) {
+    if(document.forms[i] != undefined)
+    for(var j = 0; j < document.forms[i].elements.length; j++) {
+        var elem = document.forms[i].elements[j];
+        if(elem.type == 'checkbox')
+            var name =  elem.getAttribute('data-name');
+      	    var values = elem.getAttribute('data-value').split(",");
+            
+            if(elem.checked){
+              for(var k = 0; k < values.length; k++){
+                var value = values[k]
+            	var input = document.createElement("input");
+				input.setAttribute("type", "hidden");
+				input.setAttribute("name", name);
+				input.setAttribute("value", value);
+				document.getElementById("mainform").appendChild(input);
+              }
+            }
+        }
+    }
+  return true;
+}
+</script>
+
+<form id="mainform" action="{{ urls.signup }}" method="get" onsubmit="addparams()">
+	<div class="container">
+        <h1>Pick your plan</h1>
+        <br/>
+        
+       
+            {% for service in provider.services %} 
+      		<h2> {{ service.name }} </h2>
+      		<div class="row">
+            {% for plan in service.application_plans%}
+      		
+            <div class="col-md-4">
+                <article class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>{{ plan.name }}</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            {% if plan.features == present %}
+                            <div class="col-md-6">
+                                <h5>Features</h5>
+                                <ul class="features list-unstyled">
+                                    {% for feature in plan.features %}
+                                    <li>
+                                        <i class="fa fa-check"></i> {{ feature.name }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            <div class="col-md-6">
+                                <h5>Limits</h5>
+                                <ul class="limits list-unstyled">
+                                    {% if plan.usage_limits == present %} {% for limit in plan.usage_limits %}
+                                    <li>
+                                        <i class="fa fa-signal"></i> {{ limit.metric.name }} &ndash; {{ limit.value }} {{ limit.metric.unit }}s per {{ limit.period }}
+                                    </li>
+                                    {% endfor %} {% else %}
+                                    <li>
+                                        <i class="fa fa-signal"></i> No limits
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="row">
+                            <div class="col-md-12">
+                              	
+                              	<div class="row">
+                    		  		<div class="col-md-12">
+				                        <!--This means that the checkbox is not displayed if no service plan is published for this Service-->
+                                        {% if service.service_plans.first.id != blank %} 
+                      					<input type="checkbox" data-name="plan_ids[]" data-value="{{ plan.id }},{{ service.service_plans.first.id }}">Signup to {{ plan.name }}</input>
+                                        {% endif %}                      				
+                          </div>
+                  				</div>
+                          		
+                                                                                         
+                          </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+                    
+          {% endfor %}
+              </div>
+          {% endfor %}
+  			<div class="container text-center">
+    <button type="submit" class="btn btn-cta-primary">Signup</a>
+    </div>
+        
+    </div>
+</form>
